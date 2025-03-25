@@ -26,22 +26,21 @@ const EquipmentBooking = () => {
   const [error, setError] = useState(false);
   const [bookingData, setBookingData] = useState({
     totalPrice: 0,
-    equipmentId: null,
-    renter: null,
-    duration: 1,
-    durationType: "daily",
-    startDate: null,
-    endDate: null
+    packageDetails: null,
+    buyer: null,
+    persons: 1,
+    date: null,
   });
   const [clientToken, setClientToken] = useState("");
   const [instance, setInstance] = useState("");
   const [currentDate, setCurrentDate] = useState("");
+  const [owner, setOwner] = useState("")
 
   const getEquipmentData = async () => {
     try {
       setLoading(true);
       const res = await fetch(
-        `/api/equipment/get-equipment/${params?.equipmentId}`
+        `/api/package/get-package-data/${params?.packageId}`
       );
       const data = await res.json();
       if (data?.success) {
@@ -70,7 +69,7 @@ const EquipmentBooking = () => {
   // Get payment gateway token
   const getToken = async () => {
     try {
-      const { data } = await axios.get(`/api/equipment/braintree/token`);
+      const { data } = await axios.get(`/api/package/braintree/token`);
       setClientToken(data?.clientToken);
     } catch (error) {
       console.log(error);
@@ -83,20 +82,20 @@ const EquipmentBooking = () => {
 
   // Handle payment & book equipment
   const handleRentEquipment = async () => {
-    if (
-      !bookingData.equipmentId ||
-      !bookingData.renter ||
-      bookingData.totalPrice <= 0 ||
-      bookingData.duration <= 0 ||
-      !bookingData.startDate ||
-      !bookingData.endDate
-    ) {
-      alert("All fields are required!");
-      return;
-    }
+    // if (
+    //   !bookingData.equipmentId ||
+    //   !bookingData.renter ||
+    //   bookingData.totalPrice <= 0 ||
+    //   bookingData.duration <= 0 ||
+    //   !bookingData.startDate ||
+    //   !bookingData.endDate
+    // ) {
+    //   alert("All fields are required!");
+    //   return;
+    // }
     try {
       setLoading(true);
-      const res = await fetch(`/api/booking/rent-equipment`, {
+      const res = await fetch(`/api/booking/book-package/${params?.id}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -104,9 +103,12 @@ const EquipmentBooking = () => {
         body: JSON.stringify(bookingData),
       });
       const data = await res.json();
+      console.log("Booking api response", data)
+      console.log("Form Data: ", bookingData)
       if (data?.success) {
         setLoading(false);
         alert(data?.message);
+        setOwner(data.owner)
         navigate(`/profile/${currentUser?.user_role === 1 ? "admin" : "user"}`);
       } else {
         setLoading(false);
@@ -127,15 +129,17 @@ const EquipmentBooking = () => {
   }, [params?.equipmentId]);
 
   useEffect(() => {
-    if (equipmentData && params?.equipmentId) {
+    if (equipmentData && params?.packageId) {
       setBookingData({
         ...bookingData,
-        equipmentId: params?.equipmentId,
-        renter: currentUser?._id,
-        totalPrice: calculateTotalPrice()
+        packageDetails: params?.packageId,
+        buyer: currentUser?._id,
+        totalPrice: equipmentData?.packageDiscountPrice
+          ? equipmentData?.packageDiscountPrice * bookingData?.persons
+          : equipmentData?.packagePrice * bookingData?.persons,
       });
     }
-  }, [equipmentData, params, bookingData.duration, bookingData.durationType]);
+  }, [equipmentData, params]);
 
   const calculateTotalPrice = () => {
     let rate = 0;
@@ -302,16 +306,22 @@ const EquipmentBooking = () => {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-green-700">Start Date</label>
-                  <input
-                    type="date"
-                    min={currentDate}
-                    className="mt-1 block w-full p-2 border border-green-300 rounded-md shadow-sm"
-                    onChange={handleDateChange}
-                  />
-                </div>
-                <div>
+              <div className="flex flex-col my-1">
+                <label className="font-semibold" htmlFor="date">
+                  Select Date:
+                </label>
+                <input
+                  type="date"
+                  min={currentDate !== "" ? currentDate : ""}
+                  //   min={"2024-01-23"}
+                  id="date"
+                  className="w-max border rounded"
+                  onChange={(e) => {
+                    setBookingData({ ...bookingData, date: e.target.value });
+                  }}
+                />
+              </div>
+                {/* <div>
                   <label className="block text-sm font-medium text-green-700">End Date</label>
                   <input
                     type="date"
@@ -320,7 +330,7 @@ const EquipmentBooking = () => {
                     className="mt-1 block w-full p-2 border border-green-300 rounded-md shadow-sm"
                     disabled
                   />
-                </div>
+                </div> */}
               </div>
 
               <div className="pt-4 border-t border-green-200">
@@ -341,9 +351,10 @@ const EquipmentBooking = () => {
             </div>
           </div>
         </div>
-
+            
+        <button style={{border:'2px solid black'}} onClick={handleRentEquipment}>Request ownser Detail</button>
         {/* Payment Section */}
-        <div className="w-full p-6 bg-green-50 rounded-lg border border-green-200">
+        {/* <div className="w-full p-6 bg-green-50 rounded-lg border border-green-200">
           <h2 className="text-xl font-semibold text-green-700 mb-4">Payment Details</h2>
           <div className="max-w-md mx-auto">
             <p className={`text-sm mb-4 ${instance ? "text-red-600" : "text-gray-600"}`}>
@@ -383,7 +394,7 @@ const EquipmentBooking = () => {
               </>
             )}
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );

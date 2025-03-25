@@ -263,13 +263,10 @@ const AdminDashboard = () => {
             <div className="border-b px-4 py-3 overflow-x-auto">
               <div className="flex space-x-2">
                 {[
-                  { id: 1, name: "Bookings" },
-                  { id: 2, name: "Add Packages" },
-                  { id: 3, name: "All Packages" },
-                  { id: 4, name: "Users" },
-                  { id: 5, name: "Payments" },
+                  { id: 1, name: "My Bookings" },
+                  { id: 2, name: "Add Equipment" },
+                  { id: 3, name: "All Equipment" },
                   { id: 6, name: "Ratings/Reviews" },
-                  { id: 7, name: "History" }
                 ].map((tab) => (
                   <button
                     key={tab.id}

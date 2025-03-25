@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import Chart from "../components/Chart";
 
 const AllBookings = () => {
   const { currentUser } = useSelector((state) => state.user);
@@ -15,9 +14,10 @@ const AllBookings = () => {
     try {
       setLoading(true);
       const res = await fetch(
-        `/api/booking/get-currentBookings?searchTerm=${searchTerm}`
+        `/api/booking/get-currentBookings/${currentUser._id}?searchTerm=${searchTerm}`
       );
       const data = await res.json();
+      console.log("GET ALL BOOKINGS: ", data)
       if (data?.success) {
         setCurrentBookings(data?.bookings);
         setLoading(false);
@@ -73,7 +73,7 @@ const AllBookings = () => {
               setSearchTerm(e.target.value);
             }}
           />
-          {currentBookings.length > 0 && <Chart data={currentBookings} />}
+         
         </div>
         {!loading &&
           currentBookings &&
@@ -95,8 +95,9 @@ const AllBookings = () => {
                     {booking?.packageDetails?.packageName}
                   </p>
                 </Link>
-                <p>{booking?.buyer?.username}</p>
-                <p>{booking?.buyer?.email}</p>
+                <p>{booking?.packageDetails?.userId.username}</p>
+                <p>{booking?.packageDetails?.userId.email}</p>
+                <p>{booking?.packageDetails?.userId.phone}</p>
                 <p>{booking?.date}</p>
                 <button
                   onClick={() => {

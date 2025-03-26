@@ -34,6 +34,7 @@ import AllUsers from "./AllUsers";
 import Payments from "./Payments";
 import RatingsReviews from "./RatingsReviews";
 import History from "./History";
+import BookingsRequest from "./BookingsRequest";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -266,6 +267,7 @@ const AdminDashboard = () => {
                   { id: 1, name: "My Bookings" },
                   { id: 2, name: "Add Equipment" },
                   { id: 3, name: "All Equipment" },
+                  { id: 4, name: 'Booking Requests'},
                   { id: 6, name: "Ratings/Reviews" },
                 ].map((tab) => (
                   <button
@@ -292,7 +294,7 @@ const AdminDashboard = () => {
               ) : activePanelId === 3 ? (
                 <AllPackages />
               ) : activePanelId === 4 ? (
-                <AllUsers />
+                <BookingsRequest/>
               ) : activePanelId === 5 ? (
                 <Payments />
               ) : activePanelId === 6 ? (

@@ -1,3 +1,4 @@
+// frontend/src/components/Package.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { Link } from "react-router-dom";
@@ -24,21 +25,22 @@ const Package = () => {
   const params = useParams();
   const navigate = useNavigate();
   const [packageData, setPackageData] = useState({
-    packageName: "",
-    packageDescription: "",
-    packageDestination: "",
-    packageDays: 1,
-    packageNights: 1,
-    packageAccommodation: "",
-    packageTransportation: "",
-    packageMeals: "",
-    packageActivities: "",
-    packagePrice: 500,
-    packageDiscountPrice: 0,
-    packageOffer: false,
+    equipmentName: "",
+    equipmentDescription: "",
+    location: "",
+    dailyRentPrice: 0,
+    weeklyRentPrice: 0,
+    monthlyRentPrice: 0,
+    availableQuantity: 0,
+    condition: "",
+    manufacturer: "",
+    modelYear: 0,
+    rentalTerms: "",
+    isAvailable: false,
+    equipmentImages: [],
+    // Keeping rating fields for compatibility with existing UI
     packageRating: 0,
     packageTotalRatings: 0,
-    packageImages: [],
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
@@ -61,21 +63,22 @@ const Package = () => {
       const data = await res.json();
       if (data?.success) {
         setPackageData({
-          packageName: data?.packageData?.packageName,
-          packageDescription: data?.packageData?.packageDescription,
-          packageDestination: data?.packageData?.packageDestination,
-          packageDays: data?.packageData?.packageDays,
-          packageNights: data?.packageData?.packageNights,
-          packageAccommodation: data?.packageData?.packageAccommodation,
-          packageTransportation: data?.packageData?.packageTransportation,
-          packageMeals: data?.packageData?.packageMeals,
-          packageActivities: data?.packageData?.packageActivities,
-          packagePrice: data?.packageData?.packagePrice,
-          packageDiscountPrice: data?.packageData?.packageDiscountPrice,
-          packageOffer: data?.packageData?.packageOffer,
-          packageRating: data?.packageData?.packageRating,
-          packageTotalRatings: data?.packageData?.packageTotalRatings,
-          packageImages: data?.packageData?.packageImages,
+          equipmentName: data?.packageData?.equipmentName,
+          equipmentDescription: data?.packageData?.equipmentDescription,
+          location: data?.packageData?.location,
+          dailyRentPrice: data?.packageData?.dailyRentPrice,
+          weeklyRentPrice: data?.packageData?.weeklyRentPrice,
+          monthlyRentPrice: data?.packageData?.monthlyRentPrice,
+          availableQuantity: data?.packageData?.availableQuantity,
+          condition: data?.packageData?.condition,
+          manufacturer: data?.packageData?.manufacturer,
+          modelYear: data?.packageData?.modelYear,
+          rentalTerms: data?.packageData?.rentalTerms,
+          isAvailable: data?.packageData?.isAvailable,
+          equipmentImages: data?.packageData?.equipmentImages,
+          // Default rating fields (since not in schema yet)
+          packageRating: 0,
+          packageTotalRatings: 0,
         });
         setLoading(false);
       } else {
@@ -84,17 +87,19 @@ const Package = () => {
       }
     } catch (error) {
       console.log(error);
+      setError("Failed to load equipment data");
+      setLoading(false);
     }
   };
 
   const giveRating = async () => {
     checkRatingGiven();
     if (ratingGiven) {
-      alert("You already submittd your rating!");
+      alert("You already submitted your rating!");
       return;
     }
     if (ratingsData.rating === 0 && ratingsData.review === "") {
-      alert("Atleast 1 field is required!");
+      alert("At least 1 field is required!");
       return;
     }
     if (
@@ -187,7 +192,7 @@ const Package = () => {
       {packageData && !loading && !error && (
         <div className="w-full">
           <Swiper navigation>
-            {packageData?.packageImages.map((imageUrl, i) => (
+            {packageData?.equipmentImages.map((imageUrl, i) => (
               <SwiperSlide key={i}>
                 <div
                   className="h-[400px]"
@@ -228,53 +233,51 @@ const Package = () => {
           </div>
           <div className="w-full flex flex-col p-5 gap-2">
             <p className="text-2xl font-bold capitalize">
-              {packageData?.packageName}
+              {packageData?.equipmentName}
             </p>
             {/* price */}
             <p className="flex gap-1 text-2xl font-semibold my-3">
-              {packageData?.packageOffer ? (
+              {packageData?.isAvailable ? (
                 <>
                   <span className="line-through text-gray-700">
-                    ${packageData?.packagePrice}
+                    ₹
+                    {packageData?.weeklyRentPrice ||
+                      packageData?.dailyRentPrice * 7}
                   </span>{" "}
-                  -<span>${packageData?.packageDiscountPrice}</span>
+                  -<span>₹{packageData?.dailyRentPrice}</span>
                   <span className="text-lg ml-2 bg-green-700 p-1 rounded text-white">
                     {Math.floor(
-                      ((+packageData?.packagePrice -
-                        +packageData?.packageDiscountPrice) /
-                        +packageData?.packagePrice) *
+                      (((packageData?.weeklyRentPrice ||
+                        packageData?.dailyRentPrice * 7) -
+                        packageData?.dailyRentPrice) /
+                        (packageData?.weeklyRentPrice ||
+                          packageData?.dailyRentPrice * 7)) *
                         100
                     )}
                     % Off
                   </span>
                 </>
               ) : (
-                <span>${packageData?.packagePrice}</span>
+                <span>₹{packageData?.dailyRentPrice}</span>
               )}
             </p>
             {/* price */}
             {/* destination */}
             <p className="text-green-700 flex items-center gap-1 text-lg capitalize">
               <FaMapMarkerAlt />
-              {packageData?.packageDestination}
+              {packageData?.location}
             </p>
             {/* destination */}
             {/* days & nights */}
-            {(+packageData?.packageDays > 0 ||
-              +packageData?.packageNights > 0) && (
+            {(packageData?.dailyRentPrice > 0 ||
+              packageData?.weeklyRentPrice > 0) && (
               <p className="flex items-center gap-2">
                 <FaClock />
-                {+packageData?.packageDays > 0 &&
-                  (+packageData?.packageDays > 1
-                    ? packageData?.packageDays + " Days"
-                    : packageData?.packageDays + " Day")}
-                {+packageData?.packageDays > 0 &&
-                  +packageData?.packageNights > 0 &&
+                {packageData?.dailyRentPrice > 0 && "Daily Rental Available"}
+                {packageData?.dailyRentPrice > 0 &&
+                  packageData?.weeklyRentPrice > 0 &&
                   " - "}
-                {+packageData?.packageNights > 0 &&
-                  (+packageData?.packageNights > 1
-                    ? packageData?.packageNights + " Nights"
-                    : packageData?.packageNights + " Night")}
+                {packageData?.weeklyRentPrice > 0 && "Weekly Rental Available"}
               </p>
             )}
             {/* days & nights */}
@@ -292,18 +295,18 @@ const Package = () => {
             {/* rating */}
             {/* Description */}
             <div className="w-full flex flex-col mt-2">
-              {/* <h4 className="text-xl">Description:</h4> */}
+              <h4 className="text-xl">Description:</h4>
               <p className="break-all flex flex-col font-medium">
-                {packageData?.packageDescription.length > 280 ? (
+                {packageData?.equipmentDescription.length > 280 ? (
                   <>
                     <span id="desc">
-                      {packageData?.packageDescription.substring(0, 150)}...
+                      {packageData?.equipmentDescription.substring(0, 150)}...
                     </span>
                     <button
                       id="moreBtn"
                       onClick={() => {
                         document.getElementById("desc").innerText =
-                          packageData?.packageDescription;
+                          packageData?.equipmentDescription;
                         document.getElementById("moreBtn").style.display =
                           "none";
                         document.getElementById("lessBtn").style.display =
@@ -317,9 +320,7 @@ const Package = () => {
                       id="lessBtn"
                       onClick={() => {
                         document.getElementById("desc").innerText =
-                          packageData?.packageDescription;
-                        document.getElementById("desc").innerText =
-                          packageData?.packageDescription.substring(0, 150) +
+                          packageData?.equipmentDescription.substring(0, 150) +
                           "...";
                         document.getElementById("lessBtn").style.display =
                           "none";
@@ -332,7 +333,7 @@ const Package = () => {
                     </button>
                   </>
                 ) : (
-                  <>{packageData?.packageDescription}</>
+                  <>{packageData?.equipmentDescription}</>
                 )}
               </p>
             </div>
@@ -354,26 +355,26 @@ const Package = () => {
             {/* Description */}
             {/* Accommodation */}
             <div className="w-full flex flex-col mt-2">
-              <h4 className="text-xl">Accommodation:</h4>
-              <p>{packageData?.packageAccommodation}</p>
+              <h4 className="text-xl">Condition:</h4>
+              <p>{packageData?.condition}</p>
             </div>
             {/* Accommodation */}
             {/* Activities */}
             <div className="w-full flex flex-col mt-2">
-              <h4 className="text-xl">Activities:</h4>
-              <p>{packageData?.packageActivities}</p>
+              <h4 className="text-xl">Manufacturer:</h4>
+              <p>{packageData?.manufacturer || "Not specified"}</p>
             </div>
             {/* Activities */}
             {/* meals */}
             <div className="w-full flex flex-col mt-2">
-              <h4 className="text-xl">Meals:</h4>
-              <p>{packageData?.packageMeals}</p>
+              <h4 className="text-xl">Model Year:</h4>
+              <p>{packageData?.modelYear || "Not specified"}</p>
             </div>
             {/* meals */}
             {/* Transportation */}
             <div className="w-full flex flex-col mt-2">
-              <h4 className="text-xl">Transportation:</h4>
-              <p>{packageData?.packageTransportation}</p>
+              <h4 className="text-xl">Rental Terms:</h4>
+              <p>{packageData?.rentalTerms || "Not specified"}</p>
             </div>
             {/* Transportation */}
             <hr />

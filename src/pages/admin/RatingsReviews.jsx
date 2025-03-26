@@ -109,15 +109,15 @@ const RatingsReviews = () => {
                 key={i}
               >
                 <Link to={`/package/ratings/${pack._id}`}>
-                  <img
+                  {/* <img
                     src={pack?.packageImages[0]}
                     alt="image"
                     className="w-20 h-20 rounded"
-                  />
+                  /> */}
                 </Link>
                 <Link to={`/package/ratings/${pack._id}`}>
                   <p className="font-semibold hover:underline">
-                    {pack?.packageName}
+                    {pack?.equipmentName}
                   </p>
                 </Link>
                 <p className="flex items-center">

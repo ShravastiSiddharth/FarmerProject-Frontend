@@ -13,13 +13,13 @@ const AllPackages = () => {
     try {
       setLoading(true);
       let url =
-        filter === "offer" //offer
+        filter === "offer" // offer (maps to isAvailable)
           ? `/api/package/get-packages?searchTerm=${search}&offer=true`
-          : filter === "latest" //latest
+          : filter === "latest" // latest
           ? `/api/package/get-packages?searchTerm=${search}&sort=createdAt`
-          : filter === "top" //top rated
-          ? `/api/package/get-packages?searchTerm=${search}&sort=packageRating`
-          : `/api/package/get-packages?searchTerm=${search}`; //all
+          : filter === "top" // top (using dailyRentPrice as proxy since no ratings)
+          ? `/api/package/get-packages?searchTerm=${search}&sort=dailyRentPrice&order=asc`
+          : `/api/package/get-packages?searchTerm=${search}`; // all
       const res = await fetch(url);
       const data = await res.json();
       if (data?.success) {
@@ -43,13 +43,13 @@ const AllPackages = () => {
     const numberOfPackages = packages.length;
     const startIndex = numberOfPackages;
     let url =
-      filter === "offer" //offer
+      filter === "offer" // offer
         ? `/api/package/get-packages?searchTerm=${search}&offer=true&startIndex=${startIndex}`
-        : filter === "latest" //latest
+        : filter === "latest" // latest
         ? `/api/package/get-packages?searchTerm=${search}&sort=createdAt&startIndex=${startIndex}`
-        : filter === "top" //top rated
-        ? `/api/package/get-packages?searchTerm=${search}&sort=packageRating&startIndex=${startIndex}`
-        : `/api/package/get-packages?searchTerm=${search}&startIndex=${startIndex}`; //all
+        : filter === "top" // top
+        ? `/api/package/get-packages?searchTerm=${search}&sort=dailyRentPrice&order=asc&startIndex=${startIndex}`
+        : `/api/package/get-packages?searchTerm=${search}&startIndex=${startIndex}`; // all
     const res = await fetch(url);
     const data = await res.json();
     if (data?.packages?.length < 9) {
@@ -74,6 +74,7 @@ const AllPackages = () => {
       setLoading(false);
     } catch (error) {
       console.log(error);
+      setLoading(false);
     }
   };
 
@@ -116,7 +117,7 @@ const AllPackages = () => {
                     setFilter(e.target.id);
                   }}
                 >
-                  Offer
+                  Available
                 </li>
                 <li
                   className={`cursor-pointer hover:scale-95 border rounded-xl p-2 transition-all duration-300 ${
@@ -138,7 +139,7 @@ const AllPackages = () => {
                     setFilter(e.target.id);
                   }}
                 >
-                  Top
+                  Cheapest
                 </li>
               </ul>
             </div>
@@ -154,14 +155,14 @@ const AllPackages = () => {
               >
                 <Link to={`/package/${pack._id}`}>
                   <img
-                    src={pack?.packageImages[0]}
+                    src={pack?.equipmentImages[0]}
                     alt="image"
                     className="w-20 h-20 rounded"
                   />
                 </Link>
                 <Link to={`/package/${pack._id}`}>
                   <p className="font-semibold hover:underline">
-                    {pack?.packageName}
+                    {pack?.equipmentName}
                   </p>
                 </Link>
                 <div className="flex flex-col">

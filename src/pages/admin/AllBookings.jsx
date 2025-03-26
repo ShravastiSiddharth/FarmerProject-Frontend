@@ -18,7 +18,7 @@ const AllBookings = () => {
         `/api/booking/get-currentBookings/${currentUser._id}?searchTerm=${searchTerm}`
       );
       const data = await res.json();
-      console.log("GET ALL BOOKINGS: ", data)
+      console.log("GET ALL BOOKINGS: ", data);
       if (data?.success) {
         setCurrentBookings(data?.bookings);
         setLoading(false);
@@ -60,6 +60,7 @@ const AllBookings = () => {
   };
 
   return (
+
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-100 p-6">
       <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden border-2 border-green-700/10">
         {/* Header */}
@@ -69,6 +70,22 @@ const AllBookings = () => {
             <h1 className="text-3xl font-bold text-white">Agricultural Bookings</h1>
           </div>
           <Tractor className="text-white w-12 h-12 opacity-70" />
+
+    <div className="w-full flex justify-center">
+      <div className="w-[95%] shadow-xl rounded-lg p-3 px-1 flex flex-col gap-2">
+        {loading && <h1 className="text-center text-2xl">Loading...</h1>}
+        {error && <h1 className="text-center text-2xl">{error}</h1>}
+        <div className="w-full border-b-4 p-3">
+          <input
+            className="border rounded-lg p-2 mb-2"
+            type="text"
+            placeholder="Search Username or Email"
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+            }}
+          />
+
         </div>
 
         {/* Search Section */}
@@ -107,6 +124,7 @@ const AllBookings = () => {
                 key={i} 
                 className="p-6 border-b last:border-b-0 hover:bg-green-50 transition-colors duration-200 group"
               >
+
                 <div className="flex items-center justify-between">
                   {/* Package Details */}
                   <div className="flex items-center space-x-6">
@@ -153,6 +171,32 @@ const AllBookings = () => {
                     <span>Cancel</span>
                   </button>
                 </div>
+
+                <Link to={`/package/${booking?.packageDetails?._id}`}>
+                  <img
+                    className="w-12 h-12"
+                    src={booking?.packageDetails?.equipmentImages[0]}
+                    alt="Equipment Image"
+                  />
+                </Link>
+                <Link to={`/package/${booking?.packageDetails?._id}`}>
+                  <p className="hover:underline">
+                    {booking?.packageDetails?.equipmentName}{" "}
+                  </p>
+                </Link>
+                <p>{booking?.packageDetails?.userId.username}</p>
+                <p>{booking?.packageDetails?.userId.email}</p>
+                <p>{booking?.packageDetails?.userId.phone}</p>
+                <p>{booking?.date}</p>
+                <button
+                  onClick={() => {
+                    handleCancel(booking._id);
+                  }}
+                  className="p-2 rounded bg-red-600 text-white hover:opacity-95"
+                >
+                  Cancel
+                </button>
+
               </div>
             ))}
           </div>

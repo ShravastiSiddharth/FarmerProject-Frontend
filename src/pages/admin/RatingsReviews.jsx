@@ -137,6 +137,7 @@ const RatingsReviews = () => {
                 key={i}
                 className="border-b last:border-b-0 p-4 flex items-center justify-between hover:bg-green-50 transition-colors duration-200"
               >
+
                 <Link to={`/package/ratings/${pack._id}`} className="flex items-center space-x-4">
                   <img
                     src={pack?.packageImages[0]}
@@ -156,6 +157,28 @@ const RatingsReviews = () => {
                     ({pack?.packageTotalRatings} reviews)
                   </span>
                 </div>
+
+                <Link to={`/package/ratings/${pack._id}`}>
+                  {/* <img
+                    src={pack?.packageImages[0]}
+                    alt="image"
+                    className="w-20 h-20 rounded"
+                  /> */}
+                </Link>
+                <Link to={`/package/ratings/${pack._id}`}>
+                  <p className="font-semibold hover:underline">
+                    {pack?.equipmentName}
+                  </p>
+                </Link>
+                <p className="flex items-center">
+                  <Rating
+                    value={pack?.packageRating}
+                    precision={0.1}
+                    readOnly
+                  />
+                  ({pack?.packageTotalRatings})
+                </p>
+
               </div>
             ))
           ) : (

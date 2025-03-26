@@ -23,6 +23,7 @@ const AllPackages = () => {
     try {
       setLoading(true);
       let url =
+
         filter === "offer" 
           ? `/api/package/get-packages?searchTerm=${search}&offer=true`
           : filter === "latest"
@@ -30,6 +31,15 @@ const AllPackages = () => {
           : filter === "top"
           ? `/api/package/get-packages?searchTerm=${search}&sort=packageRating`
           : `/api/package/get-packages?searchTerm=${search}`;
+
+        filter === "offer" // offer (maps to isAvailable)
+          ? `/api/package/get-packages?searchTerm=${search}&offer=true`
+          : filter === "latest" // latest
+          ? `/api/package/get-packages?searchTerm=${search}&sort=createdAt`
+          : filter === "top" // top (using dailyRentPrice as proxy since no ratings)
+          ? `/api/package/get-packages?searchTerm=${search}&sort=dailyRentPrice&order=asc`
+          : `/api/package/get-packages?searchTerm=${search}`; // all
+
       const res = await fetch(url);
       const data = await res.json();
       if (data?.success) {
@@ -53,6 +63,7 @@ const AllPackages = () => {
     const numberOfPackages = packages.length;
     const startIndex = numberOfPackages;
     let url =
+
       filter === "offer"
         ? `/api/package/get-packages?searchTerm=${search}&offer=true&startIndex=${startIndex}`
         : filter === "latest"
@@ -60,6 +71,15 @@ const AllPackages = () => {
         : filter === "top"
         ? `/api/package/get-packages?searchTerm=${search}&sort=packageRating&startIndex=${startIndex}`
         : `/api/package/get-packages?searchTerm=${search}&startIndex=${startIndex}`;
+
+      filter === "offer" // offer
+        ? `/api/package/get-packages?searchTerm=${search}&offer=true&startIndex=${startIndex}`
+        : filter === "latest" // latest
+        ? `/api/package/get-packages?searchTerm=${search}&sort=createdAt&startIndex=${startIndex}`
+        : filter === "top" // top
+        ? `/api/package/get-packages?searchTerm=${search}&sort=dailyRentPrice&order=asc&startIndex=${startIndex}`
+        : `/api/package/get-packages?searchTerm=${search}&startIndex=${startIndex}`; // all
+
     const res = await fetch(url);
     const data = await res.json();
     if (data?.packages?.length < 9) {
@@ -84,6 +104,7 @@ const AllPackages = () => {
       setLoading(false);
     } catch (error) {
       console.log(error);
+      setLoading(false);
     }
   };
 
@@ -115,6 +136,7 @@ const AllPackages = () => {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-green-500" />
             </div>
 
+
             {/* Filter Buttons */}
             <div className="flex space-x-2">
               {[
@@ -130,12 +152,58 @@ const AllPackages = () => {
                     filter === id
                       ? "bg-green-600 text-white"
                       : "bg-white text-green-700 border border-green-300 hover:bg-green-50"
+
+            <div className="my-2 border-y-2 py-2">
+              <ul className="w-full flex justify-around">
+                <li
+                  className={`cursor-pointer hover:scale-95 border rounded-xl p-2 transition-all duration-300 ${
+                    filter === "all" && "bg-blue-500 text-white"
+                  }`}
+                  id="all"
+                  onClick={(e) => {
+                    setFilter(e.target.id);
+                  }}
+                >
+                  All
+                </li>
+                <li
+                  className={`cursor-pointer hover:scale-95 border rounded-xl p-2 transition-all duration-300 ${
+                    filter === "offer" && "bg-blue-500 text-white"
+                  }`}
+                  id="offer"
+                  onClick={(e) => {
+                    setFilter(e.target.id);
+                  }}
+                >
+                  Available
+                </li>
+                <li
+                  className={`cursor-pointer hover:scale-95 border rounded-xl p-2 transition-all duration-300 ${
+                    filter === "latest" && "bg-blue-500 text-white"
+                  }`}
+                  id="latest"
+                  onClick={(e) => {
+                    setFilter(e.target.id);
+                  }}
+                >
+                  Latest
+                </li>
+                <li
+                  className={`cursor-pointer hover:scale-95 border rounded-xl p-2 transition-all duration-300 ${
+                    filter === "top" && "bg-blue-500 text-white"
+
                   }`}
                 >
+
                   <Icon className="w-5 h-5" />
                   <span className="text-sm">{label}</span>
                 </button>
               ))}
+
+                  Cheapest
+                </li>
+              </ul>
+
             </div>
           </div>
         </div>
@@ -146,6 +214,7 @@ const AllPackages = () => {
             <p className="text-green-600 animate-pulse">Harvesting packages...</p>
           </div>
         )}
+
 
         {/* Packages Grid */}
         <div className="p-6 bg-green-50">
@@ -200,6 +269,44 @@ const AllPackages = () => {
                       </div>
                     </div>
                   </div>
+
+        {/* packages */}
+        {packages ? (
+          packages.map((pack, i) => {
+            return (
+              <div
+                className="border rounded-lg w-full flex p-3 justify-between items-center hover:scale-[1.02] transition-all duration-300"
+                key={i}
+              >
+                <Link to={`/package/${pack._id}`}>
+                  <img
+                    src={pack?.equipmentImages[0]}
+                    alt="image"
+                    className="w-20 h-20 rounded"
+                  />
+                </Link>
+                <Link to={`/package/${pack._id}`}>
+                  <p className="font-semibold hover:underline">
+                    {pack?.equipmentName}
+                  </p>
+                </Link>
+                <div className="flex flex-col">
+                  <Link to={`/profile/admin/update-package/${pack._id}`}>
+                    <button
+                      disabled={loading}
+                      className="text-blue-600 hover:underline"
+                    >
+                      {loading ? "Loading..." : "Edit"}
+                    </button>
+                  </Link>
+                  <button
+                    disabled={loading}
+                    onClick={() => handleDelete(pack?._id)}
+                    className="text-red-600 hover:underline"
+                  >
+                    {loading ? "Loading..." : "Delete"}
+                  </button>
+
                 </div>
               ))}
             </div>

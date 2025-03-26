@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   loginStart,
@@ -15,9 +15,29 @@ const Login = () => {
     email: "",
     password: "",
   });
-  // console.log(formData);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Effect to reset loading state if it gets stuck
+  useEffect(() => {
+    let timeoutId;
+    if (loading) {
+      timeoutId = setTimeout(() => {
+        dispatch(loginFailure("Login request timed out"));
+        setIsSubmitting(false);
+      }, 5000); // 5 seconds timeout
+    }
+
+    // Cleanup function
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, [loading, dispatch]);
 
   const handleChange = (e) => {
+    // Reset error when user starts typing
+    if (error) {
+      dispatch(loginFailure(null));
+    }
     setFormData({
       ...formData,
       [e.target.id]: e.target.value,
@@ -26,27 +46,54 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Prevent multiple submissions
+    if (isSubmitting) return;
+
+    // Validate inputs
+    if (!formData.email || !formData.password) {
+      dispatch(loginFailure("Please enter both email and password"));
+      return;
+    }
+
+    setIsSubmitting(true);
+    dispatch(loginStart());
+
     try {
-      dispatch(loginStart());
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
+
       const res = await fetch(`/api/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
+        signal: controller.signal
       });
+
+      clearTimeout(timeoutId);
+
       const data = await res.json();
+
       if (data?.success) {
         dispatch(loginSuccess(data?.user));
-        alert(data?.message);
+        setIsSubmitting(false);
         navigate("/");
       } else {
-        dispatch(loginFailure(data?.message));
-        alert(data?.message);
+        dispatch(loginFailure(data?.message || 'Login failed'));
+        setIsSubmitting(false);
       }
     } catch (error) {
-      dispatch(loginFailure(error.message));
-      console.log(error);
+      console.error("Login error:", error);
+      
+      // Different error handling
+      if (error.name === 'AbortError') {
+        dispatch(loginFailure('Request timed out. Please try again.'));
+      } else {
+        dispatch(loginFailure(error.message || 'An unexpected error occurred'));
+      }
+      setIsSubmitting(false);
     }
   };
 
@@ -64,8 +111,8 @@ const Login = () => {
         backgroundBlendMode: "overlay",
       }}
     >
-      <form onSubmit={handleSubmit}>
-        <div className="flex flex-col border-2 border-green-700 rounded-lg p-6 w-72 h-fit gap-5 sm:w-[350px] bg-white bg-opacity-90 shadow-lg">
+      <form onSubmit={handleSubmit} className="w-full max-w-md">
+        <div className="flex flex-col border-2 border-green-700 rounded-lg p-6 w-full gap-5 bg-white bg-opacity-90 shadow-lg">
           <h1 className="text-3xl text-center font-semibold text-green-800">AGRI CONNECT</h1>
           <p className="text-center text-green-700 font-medium -mt-3">Welcome back, farmer!</p>
           
@@ -79,8 +126,12 @@ const Login = () => {
               placeholder="your@email.com"
               className="p-3 rounded-md border border-green-300 bg-white bg-opacity-80 focus:outline-none focus:ring-2 focus:ring-green-500"
               onChange={handleChange}
+              value={formData.email}
+              required
+              disabled={isSubmitting}
             />
           </div>
+          
           <div className="flex flex-col">
             <label htmlFor="password" className="font-semibold text-green-900">
               Password:
@@ -91,17 +142,24 @@ const Login = () => {
               placeholder="••••••••"
               className="p-3 rounded-md border border-green-300 bg-white bg-opacity-80 focus:outline-none focus:ring-2 focus:ring-green-500"
               onChange={handleChange}
+              value={formData.password}
+              required
+              disabled={isSubmitting}
             />
           </div>
+          
           <p className="text-green-700 text-sm hover:underline">
             <Link to={`/signup`}>Don't have an account? Sign up</Link>
           </p>
+          
           <button
-            disabled={loading}
+            type="submit"
+            disabled={isSubmitting}
             className="p-3 text-white bg-green-700 rounded-md hover:bg-green-800 transition duration-300 font-medium shadow-md disabled:opacity-70"
           >
-            {loading ? "Loading..." : "Login"}
+            {isSubmitting ? "Loading..." : "Login"}
           </button>
+          
           {error && <p className="text-sm text-red-600 bg-red-100 p-2 rounded-md">{error}</p>}
         </div>
       </form>

@@ -6,6 +6,7 @@ import {
   ref,
   uploadBytesResumable,
 } from "firebase/storage";
+import { Tractor, Upload, Trash2, FileImage, Check } from 'lucide-react';
 
 const AddEquipment = () => {
   const [formData, setFormData] = useState({
@@ -169,162 +170,124 @@ const AddEquipment = () => {
   };
 
   return (
-    <div className="w-full flex justify-center p-4 bg-green-50 min-h-screen">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-100 py-12 px-4">
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-3xl bg-white rounded-lg shadow-md p-6 space-y-4 border border-green-200"
+        className="max-w-4xl mx-auto bg-white rounded-2xl shadow-2xl border border-green-200 p-8 space-y-6"
       >
-        <h1 className="text-2xl font-bold text-center text-green-800 mb-6">
-          Add Agricultural Equipment
-        </h1>
+        <div className="flex items-center justify-center space-x-4 mb-8">
+          <Tractor className="w-12 h-12 text-green-700" />
+          <h1 className="text-3xl font-bold text-green-900">
+            Add Agricultural Equipment
+          </h1>
+        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <label htmlFor="equipmentName" className="block text-sm font-medium text-green-700">
-              Equipment Name*
-            </label>
-            <input
-              type="text"
-              id="equipmentName"
-              className="w-full px-3 py-2 border border-green-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-              value={formData.equipmentName}
-              onChange={handleChange}
-              required
-            />
+        <div className="grid md:grid-cols-2 gap-6">
+          <div className="space-y-4">
+            <div>
+              <label htmlFor="equipmentName" className="block text-sm font-semibold text-green-800 mb-2">
+                Equipment Name *
+              </label>
+              <input
+                type="text"
+                id="equipmentName"
+                className="w-full px-4 py-2.5 border border-green-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                value={formData.equipmentName}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <div>
+              <label htmlFor="equipmentType" className="block text-sm font-semibold text-green-800 mb-2">
+                Equipment Type *
+              </label>
+              <select
+                id="equipmentType"
+                className="w-full px-4 py-2.5 border border-green-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                value={formData.equipmentType}
+                onChange={handleChange}
+                required
+              >
+                <option value="">Select Type</option>
+                <option value="Tractor">Tractor</option>
+                <option value="Harvester">Harvester</option>
+                <option value="Plow">Plow</option>
+                <option value="Seeder">Seeder</option>
+                <option value="Irrigation">Irrigation System</option>
+                <option value="Sprayer">Sprayer</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+
+            <div>
+              <label htmlFor="equipmentDescription" className="block text-sm font-semibold text-green-800 mb-2">
+                Description *
+              </label>
+              <textarea
+                id="equipmentDescription"
+                rows={4}
+                className="w-full px-4 py-2.5 border border-green-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                value={formData.equipmentDescription}
+                onChange={handleChange}
+                required
+              />
+            </div>
           </div>
 
-          <div className="space-y-2">
-            <label htmlFor="equipmentType" className="block text-sm font-medium text-green-700">
-              Equipment Type*
-            </label>
-            <select
-              id="equipmentType"
-              className="w-full px-3 py-2 border border-green-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-              value={formData.equipmentType}
-              onChange={handleChange}
-              required
-            >
-              <option value="">Select Type</option>
-              <option value="Tractor">Tractor</option>
-              <option value="Harvester">Harvester</option>
-              <option value="Plow">Plow</option>
-              <option value="Seeder">Seeder</option>
-              <option value="Irrigation">Irrigation System</option>
-              <option value="Sprayer">Sprayer</option>
-              <option value="Other">Other</option>
-            </select>
+          <div className="space-y-4">
+            <div>
+              <label htmlFor="dailyRentPrice" className="block text-sm font-semibold text-green-800 mb-2">
+                Daily Rent Price (₹) *
+              </label>
+              <input
+                type="number"
+                id="dailyRentPrice"
+                min="0"
+                className="w-full px-4 py-2.5 border border-green-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                value={formData.dailyRentPrice}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <div>
+              <label htmlFor="availableQuantity" className="block text-sm font-semibold text-green-800 mb-2">
+                Available Quantity *
+              </label>
+              <input
+                type="number"
+                id="availableQuantity"
+                min="1"
+                className="w-full px-4 py-2.5 border border-green-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                value={formData.availableQuantity}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <div>
+              <label htmlFor="condition" className="block text-sm font-semibold text-green-800 mb-2">
+                Condition
+              </label>
+              <select
+                id="condition"
+                className="w-full px-4 py-2.5 border border-green-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                value={formData.condition}
+                onChange={handleChange}
+              >
+                <option value="Excellent">Excellent</option>
+                <option value="Good">Good</option>
+                <option value="Fair">Fair</option>
+                <option value="Poor">Poor</option>
+              </select>
+            </div>
           </div>
         </div>
 
-        <div className="space-y-2">
-          <label htmlFor="equipmentDescription" className="block text-sm font-medium text-green-700">
-            Description*
-          </label>
-          <textarea
-            id="equipmentDescription"
-            rows={3}
-            className="w-full px-3 py-2 border border-green-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-            value={formData.equipmentDescription}
-            onChange={handleChange}
-            required
-          />
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="space-y-2">
-            <label htmlFor="dailyRentPrice" className="block text-sm font-medium text-green-700">
-              Daily Rent Price (₹)*
-            </label>
-            <input
-              type="number"
-              id="dailyRentPrice"
-              min="0"
-              className="w-full px-3 py-2 border border-green-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-              value={formData.dailyRentPrice}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label htmlFor="weeklyRentPrice" className="block text-sm font-medium text-green-700">
-              Weekly Rent Price (₹)
-            </label>
-            <input
-              type="number"
-              id="weeklyRentPrice"
-              min="0"
-              className="w-full px-3 py-2 border border-green-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-              value={formData.weeklyRentPrice}
-              onChange={handleChange}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label htmlFor="monthlyRentPrice" className="block text-sm font-medium text-green-700">
-              Monthly Rent Price (₹)
-            </label>
-            <input
-              type="number"
-              id="monthlyRentPrice"
-              min="0"
-              className="w-full px-3 py-2 border border-green-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-              value={formData.monthlyRentPrice}
-              onChange={handleChange}
-            />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <label htmlFor="availableQuantity" className="block text-sm font-medium text-green-700">
-              Available Quantity*
-            </label>
-            <input
-              type="number"
-              id="availableQuantity"
-              min="1"
-              className="w-full px-3 py-2 border border-green-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-              value={formData.availableQuantity}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label htmlFor="condition" className="block text-sm font-medium text-green-700">
-              Condition
-            </label>
-            <select
-              id="condition"
-              className="w-full px-3 py-2 border border-green-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-              value={formData.condition}
-              onChange={handleChange}
-            >
-              <option value="Excellent">Excellent</option>
-              <option value="Good">Good</option>
-              <option value="Fair">Fair</option>
-              <option value="Poor">Poor</option>
-            </select>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <label htmlFor="manufacturer" className="block text-sm font-medium text-green-700">
-              Manufacturer
-            </label>
-            <input
-              type="text"
-              id="manufacturer"
-              className="w-full px-3 py-2 border border-green-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-              value={formData.manufacturer}
-              onChange={handleChange}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label htmlFor="modelYear" className="block text-sm font-medium text-green-700">
+        <div className="grid md:grid-cols-2 gap-6">
+          <div>
+            <label htmlFor="modelYear" className="block text-sm font-semibold text-green-800 mb-2">
               Model Year
             </label>
             <input
@@ -332,120 +295,128 @@ const AddEquipment = () => {
               id="modelYear"
               min="2000"
               max={new Date().getFullYear()}
-              className="w-full px-3 py-2 border border-green-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="w-full px-4 py-2.5 border border-green-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
               value={formData.modelYear}
               onChange={handleChange}
             />
           </div>
+
+          <div>
+            <label htmlFor="location" className="block text-sm font-semibold text-green-800 mb-2">
+              Location *
+            </label>
+            <input
+              type="text"
+              id="location"
+              className="w-full px-4 py-2.5 border border-green-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+              value={formData.location}
+              onChange={handleChange}
+              required
+            />
+          </div>
         </div>
 
-        <div className="space-y-2">
-          <label htmlFor="location" className="block text-sm font-medium text-green-700">
-            Location*
-          </label>
-          <input
-            type="text"
-            id="location"
-            className="w-full px-3 py-2 border border-green-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-            value={formData.location}
-            onChange={handleChange}
-            required
-          />
-        </div>
-
-        <div className="space-y-2">
-          <label htmlFor="rentalTerms" className="block text-sm font-medium text-green-700">
-            Rental Terms & Conditions
-          </label>
-          <textarea
-            id="rentalTerms"
-            rows={3}
-            className="w-full px-3 py-2 border border-green-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-            value={formData.rentalTerms}
-            onChange={handleChange}
-          />
-        </div>
-
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-3">
           <input
             type="checkbox"
             id="isAvailable"
-            className="h-4 w-4 text-green-600 focus:ring-green-500 border-green-300 rounded"
+            className="h-5 w-5 text-green-600 focus:ring-green-500 border-green-300 rounded"
             checked={formData.isAvailable}
             onChange={handleChange}
           />
-          <label htmlFor="isAvailable" className="block text-sm font-medium text-green-700">
+          <label htmlFor="isAvailable" className="text-sm font-medium text-green-800">
             Currently Available for Rent
           </label>
         </div>
 
-        <div className="space-y-2">
-          <label htmlFor="equipmentImages" className="block text-sm font-medium text-green-700">
-            Equipment Images (Max 5)
-          </label>
-          <input
-            type="file"
-            id="equipmentImages"
-            multiple
-            accept="image/*"
-            className="block w-full text-sm text-green-700
-              file:mr-4 file:py-2 file:px-4
-              file:rounded-md file:border-0
-              file:text-sm file:font-semibold
-              file:bg-green-100 file:text-green-700
-              hover:file:bg-green-200"
-            onChange={(e) => setImages(e.target.files)}
-          />
-          <p className="text-xs text-green-600">Upload clear images of the equipment from multiple angles</p>
-        </div>
-
-        {(imageUploadError || error) && (
-          <div className="p-3 bg-red-50 text-red-700 rounded-md">
-            {imageUploadError || error}
+        <div className="space-y-4">
+          <div>
+            <label htmlFor="equipmentImages" className="block text-sm font-semibold text-green-800 mb-2">
+              Equipment Images (Max 5)
+            </label>
+            <input
+              type="file"
+              id="equipmentImages"
+              multiple
+              accept="image/*"
+              className="block w-full text-sm text-green-700
+                file:mr-4 file:py-2 file:px-4
+                file:rounded-md file:border-0
+                file:text-sm file:font-semibold
+                file:bg-green-100 file:text-green-700
+                hover:file:bg-green-200"
+              onChange={(e) => setImages(e.target.files)}
+            />
+            <p className="text-xs text-green-600 mt-2">Upload clear images of the equipment from multiple angles</p>
           </div>
-        )}
 
-        {images.length > 0 && (
-          <button
-            type="button"
-            onClick={handleImageSubmit}
-            disabled={uploading}
-            className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md transition duration-150 ease-in-out disabled:opacity-50"
-          >
-            {uploading ? `Uploading (${imageUploadPercent}%)` : "Upload Images"}
-          </button>
-        )}
-
-        {formData.equipmentImages.length > 0 && (
-          <div className="space-y-2">
-            <h3 className="text-sm font-medium text-green-700">Uploaded Images:</h3>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              {formData.equipmentImages.map((image, index) => (
-                <div key={index} className="relative group">
-                  <img
-                    src={image}
-                    alt={`Equipment ${index}`}
-                    className="w-full h-32 object-cover rounded-md border border-green-200"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => handleDeleteImage(index)}
-                    className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    ×
-                  </button>
-                </div>
-              ))}
+          {(imageUploadError || error) && (
+            <div className="p-3 bg-red-50 text-red-700 rounded-md">
+              {imageUploadError || error}
             </div>
-          </div>
-        )}
+          )}
+
+          {images.length > 0 && (
+            <button
+              type="button"
+              onClick={handleImageSubmit}
+              disabled={uploading}
+              className="w-full flex items-center justify-center space-x-2 bg-green-600 hover:bg-green-700 text-white font-medium py-2.5 px-4 rounded-lg transition duration-150 ease-in-out disabled:opacity-50"
+            >
+              {uploading ? (
+                <>
+                  <Upload className="w-5 h-5 animate-pulse" />
+                  <span>Uploading ({imageUploadPercent}%)</span>
+                </>
+              ) : (
+                <>
+                  <Upload className="w-5 h-5" />
+                  <span>Upload Images</span>
+                </>
+              )}
+            </button>
+          )}
+
+          {formData.equipmentImages.length > 0 && (
+            <div className="space-y-3">
+              <h3 className="text-sm font-semibold text-green-800">Uploaded Images:</h3>
+              <div className="grid grid-cols-3 sm:grid-cols-5 gap-3">
+                {formData.equipmentImages.map((image, index) => (
+                  <div key={index} className="relative group">
+                    <img
+                      src={image}
+                      alt={`Equipment ${index}`}
+                      className="w-full h-24 object-cover rounded-lg border border-green-200"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteImage(index)}
+                      className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-7 h-7 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
 
         <button
           type="submit"
           disabled={uploading || loading}
-          className="w-full bg-green-700 hover:bg-green-800 text-white font-bold py-3 px-4 rounded-md transition duration-150 ease-in-out disabled:opacity-50"
+          className="w-full flex items-center justify-center space-x-2 bg-green-700 hover:bg-green-800 text-white font-bold py-3.5 px-4 rounded-lg transition duration-150 ease-in-out disabled:opacity-50"
         >
-          {loading ? "Adding Equipment..." : "Add Equipment"}
+          {loading ? (
+            <>
+              <span>Adding Equipment...</span>
+            </>
+          ) : (
+            <>
+              <Check className="w-6 h-6 mr-2" />
+              <span>Add Equipment</span>
+            </>
+          )}
         </button>
       </form>
     </div>

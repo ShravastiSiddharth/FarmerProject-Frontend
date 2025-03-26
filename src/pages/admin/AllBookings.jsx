@@ -17,7 +17,7 @@ const AllBookings = () => {
         `/api/booking/get-currentBookings/${currentUser._id}?searchTerm=${searchTerm}`
       );
       const data = await res.json();
-      console.log("GET ALL BOOKINGS: ", data)
+      console.log("GET ALL BOOKINGS: ", data);
       if (data?.success) {
         setCurrentBookings(data?.bookings);
         setLoading(false);
@@ -73,7 +73,6 @@ const AllBookings = () => {
               setSearchTerm(e.target.value);
             }}
           />
-         
         </div>
         {!loading &&
           currentBookings &&
@@ -86,13 +85,13 @@ const AllBookings = () => {
                 <Link to={`/package/${booking?.packageDetails?._id}`}>
                   <img
                     className="w-12 h-12"
-                    src={booking?.packageDetails?.packageImages[0]}
-                    alt="Package Image"
+                    src={booking?.packageDetails?.equipmentImages[0]}
+                    alt="Equipment Image"
                   />
                 </Link>
                 <Link to={`/package/${booking?.packageDetails?._id}`}>
                   <p className="hover:underline">
-                    {booking?.packageDetails?.packageName}
+                    {booking?.packageDetails?.equipmentName}{" "}
                   </p>
                 </Link>
                 <p>{booking?.packageDetails?.userId.username}</p>

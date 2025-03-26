@@ -1,11 +1,5 @@
+// frontend/src/components/AddEquipment.jsx
 import React, { useState } from "react";
-import { app } from "../../firebase";
-import {
-  getDownloadURL,
-  getStorage,
-  ref,
-  uploadBytesResumable,
-} from "firebase/storage";
 
 const AddEquipment = () => {
   const [formData, setFormData] = useState({
@@ -22,12 +16,10 @@ const AddEquipment = () => {
     location: "",
     rentalTerms: "",
     isAvailable: true,
-    equipmentImages: [],
   });
   const [images, setImages] = useState([]);
   const [imageUploadError, setImageUploadError] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [imageUploadPercent, setImageUploadPercent] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
 
@@ -38,72 +30,9 @@ const AddEquipment = () => {
     }
   };
 
-  const handleImageSubmit = () => {
-    if (
-      images.length > 0 &&
-      images.length + formData.equipmentImages.length < 6
-    ) {
-      setUploading(true);
-      setImageUploadError(false);
-      const promises = [];
-
-      for (let i = 0; i < images.length; i++) {
-        promises.push(storeImage(images[i]));
-      }
-      Promise.all(promises)
-        .then((urls) => {
-          setFormData({
-            ...formData,
-            equipmentImages: formData.equipmentImages.concat(urls),
-          });
-          setImageUploadError(false);
-          setUploading(false);
-        })
-        .catch((err) => {
-          console.log(err)
-          setImageUploadError("Image upload failed", err);
-          setUploading(false);
-        });
-    } else {
-      setImageUploadError("You can only upload 5 images per equipment");
-      setUploading(false);
-    }
-  };
-
-  const storeImage = async (file) => {
-    return new Promise((resolve, reject) => {
-      const storage = getStorage(app);
-      const fileName = new Date().getTime() + file.name.replace(/\s/g, "");
-      const storageRef = ref(storage, fileName);
-      const uploadTask = uploadBytesResumable(storageRef, file);
-      uploadTask.on(
-        "state_changed",
-        (snapshot) => {
-          const progress =
-            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          setImageUploadPercent(Math.floor(progress));
-        },
-        (error) => {
-          reject(error);
-        },
-        () => {
-          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-            resolve(downloadURL);
-          });
-        }
-      );
-    });
-  };
-
-  const handleDeleteImage = (index) => {
-    setFormData({
-      ...formData,
-      equipmentImages: formData.equipmentImages.filter((_, i) => i !== index),
-    });
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (
       formData.equipmentName === "" ||
       formData.equipmentDescription === "" ||
@@ -115,7 +44,11 @@ const AddEquipment = () => {
       alert("Please fill all required fields!");
       return;
     }
-    if (formData.dailyRentPrice < 0 || formData.weeklyRentPrice < 0 || formData.monthlyRentPrice < 0) {
+    if (
+      formData.dailyRentPrice < 0 ||
+      formData.weeklyRentPrice < 0 ||
+      formData.monthlyRentPrice < 0
+    ) {
       alert("Rental prices cannot be negative!");
       return;
     }
@@ -123,17 +56,30 @@ const AddEquipment = () => {
       alert("Available quantity must be at least 1!");
       return;
     }
-    
+    if (images.length === 0) {
+      alert("Please upload at least one image!");
+      return;
+    }
+    if (images.length > 5) {
+      alert("You can only upload up to 5 images!");
+      return;
+    }
+
     try {
       setLoading(true);
       setError(false);
 
-      const res = await fetch("/api/equipment/add-equipment", {
+      const formDataToSend = new FormData();
+      Object.keys(formData).forEach((key) => {
+        formDataToSend.append(key, formData[key]);
+      });
+      for (let i = 0; i < images.length; i++) {
+        formDataToSend.append("equipmentImages", images[i]);
+      }
+
+      const res = await fetch("/api/package/create-package", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
+        body: formDataToSend,
       });
       const data = await res.json();
       if (data?.success === false) {
@@ -158,7 +104,6 @@ const AddEquipment = () => {
         location: "",
         rentalTerms: "",
         isAvailable: true,
-        equipmentImages: [],
       });
       setImages([]);
     } catch (err) {
@@ -180,7 +125,10 @@ const AddEquipment = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <label htmlFor="equipmentName" className="block text-sm font-medium text-green-700">
+            <label
+              htmlFor="equipmentName"
+              className="block text-sm font-medium text-green-700"
+            >
               Equipment Name*
             </label>
             <input
@@ -194,7 +142,10 @@ const AddEquipment = () => {
           </div>
 
           <div className="space-y-2">
-            <label htmlFor="equipmentType" className="block text-sm font-medium text-green-700">
+            <label
+              htmlFor="equipmentType"
+              className="block text-sm font-medium text-green-700"
+            >
               Equipment Type*
             </label>
             <select
@@ -217,7 +168,10 @@ const AddEquipment = () => {
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="equipmentDescription" className="block text-sm font-medium text-green-700">
+          <label
+            htmlFor="equipmentDescription"
+            className="block text-sm font-medium text-green-700"
+          >
             Description*
           </label>
           <textarea
@@ -232,7 +186,10 @@ const AddEquipment = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="space-y-2">
-            <label htmlFor="dailyRentPrice" className="block text-sm font-medium text-green-700">
+            <label
+              htmlFor="dailyRentPrice"
+              className="block text-sm font-medium text-green-700"
+            >
               Daily Rent Price (₹)*
             </label>
             <input
@@ -247,7 +204,10 @@ const AddEquipment = () => {
           </div>
 
           <div className="space-y-2">
-            <label htmlFor="weeklyRentPrice" className="block text-sm font-medium text-green-700">
+            <label
+              htmlFor="weeklyRentPrice"
+              className="block text-sm font-medium text-green-700"
+            >
               Weekly Rent Price (₹)
             </label>
             <input
@@ -261,7 +221,10 @@ const AddEquipment = () => {
           </div>
 
           <div className="space-y-2">
-            <label htmlFor="monthlyRentPrice" className="block text-sm font-medium text-green-700">
+            <label
+              htmlFor="monthlyRentPrice"
+              className="block text-sm font-medium text-green-700"
+            >
               Monthly Rent Price (₹)
             </label>
             <input
@@ -277,7 +240,10 @@ const AddEquipment = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <label htmlFor="availableQuantity" className="block text-sm font-medium text-green-700">
+            <label
+              htmlFor="availableQuantity"
+              className="block text-sm font-medium text-green-700"
+            >
               Available Quantity*
             </label>
             <input
@@ -292,7 +258,10 @@ const AddEquipment = () => {
           </div>
 
           <div className="space-y-2">
-            <label htmlFor="condition" className="block text-sm font-medium text-green-700">
+            <label
+              htmlFor="condition"
+              className="block text-sm font-medium text-green-700"
+            >
               Condition
             </label>
             <select
@@ -311,7 +280,10 @@ const AddEquipment = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <label htmlFor="manufacturer" className="block text-sm font-medium text-green-700">
+            <label
+              htmlFor="manufacturer"
+              className="block text-sm font-medium text-green-700"
+            >
               Manufacturer
             </label>
             <input
@@ -324,7 +296,10 @@ const AddEquipment = () => {
           </div>
 
           <div className="space-y-2">
-            <label htmlFor="modelYear" className="block text-sm font-medium text-green-700">
+            <label
+              htmlFor="modelYear"
+              className="block text-sm font-medium text-green-700"
+            >
               Model Year
             </label>
             <input
@@ -340,7 +315,10 @@ const AddEquipment = () => {
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="location" className="block text-sm font-medium text-green-700">
+          <label
+            htmlFor="location"
+            className="block text-sm font-medium text-green-700"
+          >
             Location*
           </label>
           <input
@@ -354,7 +332,10 @@ const AddEquipment = () => {
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="rentalTerms" className="block text-sm font-medium text-green-700">
+          <label
+            htmlFor="rentalTerms"
+            className="block text-sm font-medium text-green-700"
+          >
             Rental Terms & Conditions
           </label>
           <textarea
@@ -374,14 +355,20 @@ const AddEquipment = () => {
             checked={formData.isAvailable}
             onChange={handleChange}
           />
-          <label htmlFor="isAvailable" className="block text-sm font-medium text-green-700">
+          <label
+            htmlFor="isAvailable"
+            className="block text-sm font-medium text-green-700"
+          >
             Currently Available for Rent
           </label>
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="equipmentImages" className="block text-sm font-medium text-green-700">
-            Equipment Images (Max 5)
+          <label
+            htmlFor="equipmentImages"
+            className="block text-sm font-medium text-green-700"
+          >
+            Equipment Images (Max 5)*
           </label>
           <input
             type="file"
@@ -395,48 +382,16 @@ const AddEquipment = () => {
               file:bg-green-100 file:text-green-700
               hover:file:bg-green-200"
             onChange={(e) => setImages(e.target.files)}
+            required
           />
-          <p className="text-xs text-green-600">Upload clear images of the equipment from multiple angles</p>
+          <p className="text-xs text-green-600">
+            Upload clear images of the equipment from multiple angles
+          </p>
         </div>
 
         {(imageUploadError || error) && (
           <div className="p-3 bg-red-50 text-red-700 rounded-md">
             {imageUploadError || error}
-          </div>
-        )}
-
-        {images.length > 0 && (
-          <button
-            type="button"
-            onClick={handleImageSubmit}
-            disabled={uploading}
-            className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md transition duration-150 ease-in-out disabled:opacity-50"
-          >
-            {uploading ? `Uploading (${imageUploadPercent}%)` : "Upload Images"}
-          </button>
-        )}
-
-        {formData.equipmentImages.length > 0 && (
-          <div className="space-y-2">
-            <h3 className="text-sm font-medium text-green-700">Uploaded Images:</h3>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              {formData.equipmentImages.map((image, index) => (
-                <div key={index} className="relative group">
-                  <img
-                    src={image}
-                    alt={`Equipment ${index}`}
-                    className="w-full h-32 object-cover rounded-md border border-green-200"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => handleDeleteImage(index)}
-                    className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    ×
-                  </button>
-                </div>
-              ))}
-            </div>
           </div>
         )}
 
